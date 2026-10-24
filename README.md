@@ -56,7 +56,35 @@ Open **[the app](http://127.0.0.1:8000)** or the
 **[API documentation](http://127.0.0.1:8000/docs)**.
 The project works with built-in notes before a Groq key is added.
 
-## Enable Groq notes
+## Deploy the full app on Render
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ShaunakDhar/OSTutorLLM)
+
+The repository includes `render.yaml` for a **free Python web service**. It runs
+the frontend and FastAPI backend together, so guided lessons, quizzes and Groq
+notes all use the same origin.
+
+1. Open **Deploy to Render**, sign in, and use this repository's Blueprint.
+2. Enter `GROQ_API_KEY` as a secret environment variable in Render. The Blueprint
+   contains no API key and asks for it during initial setup.
+3. Deploy the service and wait until Render marks it live.
+4. Open the service's assigned `onrender.com` URL and verify `/api/health`.
+
+Build command: `pip install -r requirements.txt`.
+Start command: `python -m uvicorn app:app --host 0.0.0.0 --port $PORT --workers 1`.
+The `.python-version` file selects the latest available Python 3.12 patch.
+
+The free service can sleep after inactivity. A restart or sleep clears lesson
+sessions and the in-memory note cache. The next visitor may wait for the app to
+wake. No database or paid resource is configured.
+
+GitHub Pages cannot run the Python backend. Deploy this repository as a Render
+**web service**, rather than as a static site, to keep the full functionality.
+
+See [Render's FastAPI guide](https://render.com/docs/deploy-fastapi) and
+[free-service behavior](https://render.com/docs/free).
+
+## Configure Groq locally
 
 1. Create an API key in the [Groq Console](https://console.groq.com/keys).
 2. Copy `.env.example` to `.env` in the project root.
