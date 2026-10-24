@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSTutorLLM | Operating Systems Virtual Professor</title>
+<style>
+ :root{--bg:#f5f8f5;--panel:#ffffff;--panel2:#f0f7f1;--line:#d8e3da;--text:#243b2c;--muted:#596c5e;--accent:#237847;--green:#176b3a;--red:#b43434;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Segoe UI",Arial,sans-serif}
+header{padding:20px max(20px,calc((100vw - 1200px)/2));display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line);background:#fff}
+.brand{font-size:23px;font-weight:750;letter-spacing:-.4px}.brand span{color:var(--accent)}.muted{color:var(--muted)}.tag{font-size:12px;color:var(--muted)}
+.wrap{max-width:1200px;margin:28px auto;padding:0 20px}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;box-shadow:0 2px 6px #23492d06}
+h1{font-size:clamp(30px,4vw,42px);line-height:1.2;letter-spacing:-.8px;font-weight:700;margin:13px 0}h2,h3{font-weight:650}.eyebrow,.pill{display:inline-block;padding:5px 10px;border-radius:6px;background:#edf5ee;color:#27633c;font-size:12px;margin:2px}.eyebrow{font-weight:650;letter-spacing:.6px}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}input,select,textarea,button{font:inherit;border-radius:6px;border:1px solid #bdcfc1;background:#fff;color:var(--text);padding:11px 13px}input{flex:1;min-width:210px}input::placeholder{color:#687b6d}select{max-width:100%}button{cursor:pointer;background:#237847;border-color:#237847;color:#fff;font-weight:600}button:hover{background:#1b6038}button:disabled{opacity:.55;cursor:wait}.secondary{background:#fff;border-color:#c6d8cb;color:#2e6540}.secondary:hover{background:#edf6ef;border-color:#87af93}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #82b895;outline-offset:3px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 12px}.row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.answer{min-height:180px;white-space:pre-wrap;line-height:1.75}.source{padding:11px 12px;border-left:3px solid var(--accent);background:#f2f8f3;border-radius:5px;margin:9px 0;font-size:13px}.source small{display:block;color:var(--muted);margin-top:3px}.topic-list{display:flex;flex-wrap:wrap;gap:6px}.topic{cursor:pointer}.topic:hover{background:#e7f2e9}.topic[aria-pressed="true"]{background:#237847;border-color:#237847;color:white}.notice{padding:12px 14px;background:#eef7ef;border:1px solid #cde0d1;border-radius:6px;color:#355f41;font-size:13px;margin-top:14px}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.question{padding:16px;border:1px solid var(--line);border-radius:8px;margin:16px 0;background:#fff}.question legend{padding:0 6px;font-weight:600}.option{display:block;width:100%;text-align:left;padding:10px 12px;margin:7px 0;background:#f5f8f5;border:1px solid #dce6de;border-radius:6px;cursor:pointer}.option:hover{background:#eaf4ed}.option:has(input:checked){background:#e3f1e7;border-color:#6da780}.option input{min-width:0;flex:initial;margin-right:8px;accent-color:#237847}.result{border:1px solid var(--line);border-radius:8px;padding:14px;margin:12px 0;background:#f5f8f5}.good{color:var(--green)}.bad{color:var(--red)}progress{accent-color:#237847;height:12px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:25px 0}
+@media(max-width:800px){.hero,.row,.quiz-grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.wrap{margin:18px auto}.card{padding:17px}}
+</style></head>
+<body>
+<header><div><div class="brand">⚙ OS<span>TutorLLM</span></div><div class="tag">Operating Systems Virtual Professor · Prototype v2.0</div></div><div class="pill">FastAPI · Source-aware retrieval</div></header>
+<main class="wrap">
+<section class="hero">
+<div class="card"><span class="eyebrow">STUDY • REVISE • PRACTISE</span><h1>Your personal Operating Systems study studio.</h1>
+<p class="muted">Ask a question, choose a learning style, review the retrieved source, and test your understanding. Responses are grounded in the bundled educational knowledge base.</p>
+<div class="controls"><select id="mode" aria-label="Answer style"><option>Exam Revision</option><option>Beginner</option><option>Viva & Interview</option><option>Practical Lab</option></select>
+<select id="category" aria-label="Topic category"><option>All Topics</option></select>
+<input id="q" maxlength="1000" placeholder="e.g. Explain Round Robin scheduling" aria-label="Question"><button id="askBtn" onclick="ask()">Ask OSTutor ↗</button></div>
+<div class="notice">Choose a topic for step-by-step lessons and short quizzes. Topic notes can be enhanced with Groq AI; built-in notes are available whenever AI notes are unavailable.</div></div>
+<div class="card"><h2>Learning topics</h2><p class="muted">Choose a topic to start a guided lesson. Learn a little, check your understanding, then move on.</p><div id="topics" class="topic-list">Loading topics…</div><hr style="border-color:var(--line);margin:20px 0">
+<h3>Runtime status</h3><div id="status" class="muted">Checking API…</div><div class="controls"><button class="secondary" onclick="loadMetrics()">Refresh metrics</button></div><div id="metrics" class="muted" style="font-size:13px;margin-top:8px"></div></div>
+</section>
+<section class="card" id="guidedLesson" aria-labelledby="lessonHeading" style="margin-top:18px">
+<span class="eyebrow">LEARN AT YOUR PACE</span><h2 id="lessonHeading">Guided learning</h2>
+<p class="muted">Choose any learning topic above. Each part includes an example and two questions. Get both right to unlock the next part, or review a simpler explanation and try again.</p>
+<div id="lessonStatus" role="status"></div><div id="lessonBody"></div>
+</section>
+<section class="row"><div class="card"><div class="section-title"><h2 style="margin:0">Professor response</h2><button class="secondary" onclick="clearAnswer()">Clear</button></div><div id="answer" class="answer muted">Try asking a question above. Your answer will appear here.</div><div id="latency" class="muted" style="font-size:12px"></div></div>
+<div class="card"><h2>Retrieved sources</h2><div id="sources" class="muted">Source cards appear here after a question is submitted.</div></div></section>
+<section class="card" style="margin-top:18px"><div class="section-title"><div><h2 style="margin:0">Viva & exam practice</h2><div class="muted">Eight multiple-choice questions with explanations.</div></div><button id="startQuiz" onclick="loadQuiz()">Start / Restart quiz</button></div><div id="quizArea" class="muted">Start the quiz when you are ready.</div></section>
+<div class="footer">OSTutorLLM · Academic demonstration prototype · FastAPI + HTML/CSS/JavaScript</div>
+</main>
+<script src="/static/lessons.js"></script>
+<script>
+let quizQuestions=[];
+const $=id=>document.getElementById(id);
+async function api(url,options={}){const r=await fetch(url,options);if(!r.ok){let message=`Request failed (${r.status})`;try{const e=await r.json();message=e.detail||message}catch{}throw new Error(message)}return r.json()}
+async function init(){try{const [t,h]=await Promise.all([api('/api/topics'),api('/api/health')]);$('status').textContent=`${h.status.toUpperCase()} · ${h.knowledge_entries} knowledge entries · v${h.version}`;
+const cat=$('category');t.categories.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cat.append(o)});
+const box=$('topics');box.replaceChildren();t.topics.forEach(x=>{const b=document.createElement('button');b.className='pill topic secondary';b.textContent=x.topic;b.title=x.source;b.dataset.topicId=x.id;b.onclick=()=>startLesson(x.id);box.append(b)});loadMetrics();resumeLesson()}catch(e){$('status').textContent='API unavailable: '+e.message}}
+async function ask(){const question=$('q').value.trim();if(question.length<2){$('answer').textContent='Please enter a more specific question.';return}
+$('askBtn').disabled=true;$('answer').textContent='Searching the knowledge base…';$('sources').textContent='Retrieving source metadata…';
+try{const d=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,mode:$('mode').value,category:$('category').value})});
+$('answer').textContent=d.answer;$('latency').textContent=`Confidence: ${d.confidence} · Server processing: ${d.latency_ms} ms`;
+const box=$('sources');box.replaceChildren();if(!d.sources.length){box.textContent='No source passed the confidence threshold. Try a topic name or a more specific question.'}
+d.sources.forEach(s=>{const div=document.createElement('div');div.className='source';const b=document.createElement('b');b.textContent=s.topic;const sm=document.createElement('small');sm.textContent=`${s.id} · ${s.category} · ${s.source} · score ${s.score}`;div.append(b,sm);box.append(div)});loadMetrics()
+}catch(e){$('answer').textContent='Could not retrieve an answer: '+e.message;$('sources').textContent='Check that the FastAPI server is running.'}
+finally{$('askBtn').disabled=false}}
+function clearAnswer(){$('answer').textContent='Ask another OS question.';$('sources').textContent='Source cards appear here after a question is submitted.';$('latency').textContent=''}
+async function loadMetrics(){try{const m=await api('/api/metrics');$('metrics').textContent=`Questions: ${m.questions} · Matched: ${m.matched_questions} · Low-confidence: ${m.low_confidence} · Quizzes: ${m.quizzes_submitted} · Avg latency: ${m.average_latency_ms??'—'} ms`;}catch{}}
+async function loadQuiz(){const area=$('quizArea');area.textContent='Loading questions…';$('startQuiz').disabled=true;try{const d=await api('/api/quiz');quizQuestions=d.questions;area.replaceChildren();quizQuestions.forEach((q,i)=>{const block=document.createElement('div');block.className='question';const title=document.createElement('div');title.innerHTML=`<b>${i+1}. ${escapeHtml(q.q)}</b>`;block.append(title);q.options.forEach((o,j)=>{const label=document.createElement('label');label.className='option';const radio=document.createElement('input');radio.type='radio';radio.name='q'+i;radio.value=j;label.append(radio,document.createTextNode(o));block.append(label)});area.append(block)});const submit=document.createElement('button');submit.textContent='Submit answers';submit.onclick=submitQuiz;area.append(submit)}catch(e){area.textContent='Unable to load quiz: '+e.message}finally{$('startQuiz').disabled=false}}
+async function submitQuiz(){const answers=quizQuestions.map((q,i)=>{const x=document.querySelector(`input[name="q${i}"]:checked`);return x?Number(x.value):-1});try{const d=await api('/api/quiz/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers,question_ids:quizQuestions.map(q=>q.id)})});const area=$('quizArea');area.replaceChildren();const h=document.createElement('h3');h.textContent=`Score: ${d.score}/${d.total} (${d.percentage}%)`;area.append(h);d.results.forEach((r,i)=>{const div=document.createElement('div');div.className='result';const b=document.createElement('b');b.className=r.correct?'good':'bad';b.textContent=`${i+1}. ${r.correct?'Correct':'Review this answer'}`;const p=document.createElement('p');p.textContent=`Your answer: ${r.selected_answer} · Correct answer: ${r.correct_answer}`;const ex=document.createElement('p');ex.textContent=r.explanation;div.append(b,p,ex);area.append(div)});loadMetrics()}catch(e){alert('Could not submit quiz: '+e.message)}}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')ask()});init();
+</script></body></html>
