@@ -5,6 +5,11 @@ and a responsive **HTML/CSS/JavaScript** interface. Learn a topic in small parts
 take a short quiz, and receive a simpler explanation when you need another
 attempt. Optional **Groq** integration expands the teaching notes.
 
+**Live app:** [ostutorllm-ygh7.onrender.com](https://ostutorllm-ygh7.onrender.com)
+
+The Render deployment currently serves built-in notes and quizzes. Enable AI
+notes by setting `GROQ_API_KEY` in the service's secret environment variables.
+
 ![OSTutorLLM guided lesson with Groq notes](docs/images/guided-lesson.png)
 
 ## Features

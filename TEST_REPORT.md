@@ -67,6 +67,17 @@ diagnostic, not a general accuracy benchmark.
 
 ## Browser verification
 
+## Render deployment verification
+
+The app is live at https://ostutorllm-ygh7.onrender.com on a free Python web
+service. **12/12 hosted smoke checks passed**: homepage, static lesson script,
+health, topics, API docs, Round Robin source retrieval, lesson start, blocked
+early advancement, incorrect-answer review, a correct retry, next-part loading
+and the general quiz. Groq is not yet configured on this hosted service; these
+checks used built-in notes. Local Groq verification above is separate evidence.
+
+## Browser inspection
+
 Real Groq notes, topic selection, review after misses, correct retry, next-part
 teaching, completion and same-tab refresh resume were exercised. The white and
 green styling and generation notices were visually checked.
